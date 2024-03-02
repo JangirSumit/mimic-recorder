@@ -78,7 +78,38 @@ function initializeCommonMethods() {
   }
 }
 
-const RULE_ENGINE = [
+function initializeExtensionMethods() {
+  if (!String.prototype.equals) {
+    String.prototype.equals = function (value, ignoreCase = true) {
+      if (ignoreCase) {
+        return this.toLowerCase() === value.toLowerCase();
+      }
+      return this === value;
+    };
+  }
+
+  if (!Node.prototype.canInteract) {
+    Node.prototype.canInteract = function () {
+      return document.documentAPI.canInteract(this);
+    };
+  }
+
+  if (!HTMLElement.prototype.hasClasses) {
+    HTMLElement.prototype.hasClasses = function () {
+      const classes = arguments;
+      const classList = this.classList;
+
+      for (const element of classes) {
+        if (!classList.contains(element)) {
+          return false;
+        }
+      }
+      return true;
+    };
+  }
+}
+
+const RULES_ENGINE = [
   {
     metadata: {
       elementCategory: constants.ELEMENT_CATEGORIES.Checkbox,
@@ -89,7 +120,7 @@ const RULE_ENGINE = [
       const targetElement = event.targetElement;
 
       return (
-        event.eventType === constants.EVENT_TYPES.Click &&
+        event.eventType.equals(constants.EVENT_TYPES.Click) &&
         targetElement.tagName.equals("span") &&
         targetElement.role?.equals("switch") &&
         targetElement.classList.contains("toggle-box")
@@ -138,6 +169,23 @@ const RULE_ENGINE = [
       }
 
       return event.eventType === constants.EVENT_TYPES.Click && result;
+    },
+  },
+  {
+    metadata: {
+      elementCategory: constants.ELEMENT_CATEGORIES.Dropdown,
+      elementType: constants.ELEMENT_TYPES.InputDropdown,
+    },
+    rule: function (events) {
+      const event = events[0];
+      const targetElement = event.targetElement;
+
+      return (
+        event.eventType === constants.EVENT_TYPES.Click &&
+        targetElement.tagName.equals("span") &&
+        targetElement.role?.equals("switch") &&
+        targetElement.classList.contains("toggle-box")
+      );
     },
   },
 ];
