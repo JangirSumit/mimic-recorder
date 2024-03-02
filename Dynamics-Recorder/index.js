@@ -115,8 +115,7 @@ const RULES_ENGINE = [
       elementCategory: constants.ELEMENT_CATEGORIES.Checkbox,
       elementType: constants.ELEMENT_TYPES.ToggleButtonCheckbox,
     },
-    rule: function (events) {
-      const event = events[0];
+    rule: function (event) {
       const targetElement = event.targetElement;
 
       return (
@@ -132,8 +131,7 @@ const RULES_ENGINE = [
       elementCategory: constants.ELEMENT_CATEGORIES.RadioButton,
       elementType: constants.ELEMENT_TYPES.DefaultRadioButton,
     },
-    rule: function (events) {
-      const event = events[0];
+    rule: function (event) {
       const targetElement = event.targetElement;
 
       let result = false;
@@ -176,8 +174,7 @@ const RULES_ENGINE = [
       elementCategory: constants.ELEMENT_CATEGORIES.Dropdown,
       elementType: constants.ELEMENT_TYPES.InputDropdown,
     },
-    rule: function (events) {
-      const event = events[0];
+    rule: function (event) {
       const targetElement = event.targetElement;
 
       return (
