@@ -25,6 +25,7 @@ const constants = {
 };
 let EVENT_PROCESSOR = {};
 
+initializeExtensionMethods();
 initializeCommonMethods();
 initializeListeners();
 initializeEventProcessor();
@@ -187,7 +188,7 @@ const RULES_ENGINE = [
           targetElement.closest(".public_fixedDataTableCell_cellContent");
 
         return (
-          event.eventType.equals(constants.EVENT_TYPES.Click) &&
+          event.type.equals(constants.EVENT_TYPES.Click) &&
           targetElement.tagName.equals("input") &&
           targetElement.role?.equals("combobox") &&
           parentElement?.querySelector(".lookupButton") &&
@@ -228,8 +229,8 @@ function initializeListeners() {
 
 function handleEvents(event) {
   console.log("got event", event);
-  EVENT_PROCESSOR.currentElement = event;
-  EVENT_PROCESSOR.activeEvents.push[event];
+  EVENT_PROCESSOR.currentEvent = event;
+  EVENT_PROCESSOR.activeEvents.push(event);
   EVENT_PROCESSOR.currentElement = event.target;
 
   processEvent();
@@ -257,11 +258,35 @@ function processEvent() {
 
       return result;
     }
-
-    console.log(
-      "filtered Rules, event processor",
-      filteredRules,
-      EVENT_PROCESSOR
-    );
   });
+
+  console.log(
+    "filtered Rules, event processor",
+    filteredRules,
+    EVENT_PROCESSOR
+  );
+
+  if (filteredRules.length === 0) {
+    generateBlock();
+  } else {
+  }
+}
+
+function generateBlock() {
+  let block = {};
+
+  switch (EVENT_PROCESSOR.currentEvent.target) {
+    case "click":
+      block = {
+        Block: EVENT_PROCESSOR.currentEvent.target,
+        Locator: EVENT_PROCESSOR.currentElement,
+      };
+      break;
+
+    default:
+      break;
+  }
+
+  RECORDER.push(block);
+  console.log(RECORDER);
 }
