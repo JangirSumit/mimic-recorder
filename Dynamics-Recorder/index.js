@@ -9,26 +9,23 @@ initializeEventProcessor();
 function initializeConstants() {
   const constants = {
     ELEMENT_TYPES: {
-      None: 0,
-      ToggleButtonCheckbox,
-      CustomCheckbox,
-      CheckmarkCheckbox,
-      TreeViewCheckbox,
-
-      InputDropdown,
-      DynamicDropdown,
-      TextboxDropdown,
-      FlyoutContainerDropdown,
-
-      DefaultRadioButton,
-
-      DefaultLink,
+      None: "None",
+      ToggleButtonCheckbox: "ToggleButtonCheckbox",
+      CustomCheckbox: "CustomCheckbox",
+      CheckmarkCheckbox: "CheckmarkCheckbox",
+      TreeViewCheckbox: "TreeViewCheckbox",
+      InputDropdown: "InputDropdown",
+      DynamicDropdown: "DynamicDropdown",
+      TextboxDropdown: "TextboxDropdown",
+      FlyoutContainerDropdown: "FlyoutContainerDropdown",
+      DefaultRadioButton: "DefaultRadioButton",
+      DefaultLink: "DefaultLink",
     },
     ELEMENT_CATEGORIES: {
-      None,
-      Checkbox,
-      Dropdown,
-      RadioButton,
+      None: "None",
+      Checkbox: "Checkbox",
+      Dropdown: "Dropdown",
+      RadioButton: "RadioButton",
     },
     EVENT_TYPES: {
       Click: "Click",
@@ -237,6 +234,8 @@ function handleEvents(event) {
   EVENT_PROCESSOR.currentElement = event;
   EVENT_PROCESSOR.activeEvents.push[event];
   EVENT_PROCESSOR.currentElement = event.target;
+
+  processEvent();
 }
 
 function processEvent() {
