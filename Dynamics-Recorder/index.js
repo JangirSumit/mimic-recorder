@@ -120,12 +120,15 @@ const RULES_ENGINE = [
       function (event) {
         const targetElement = event.target;
 
-        return (
+        const isMatched =
           event.type.equals(constants.EVENT_TYPES.click) &&
           targetElement.tagName.equals("span") &&
           targetElement.role?.equals("switch") &&
-          targetElement.classList.contains("toggle-box")
-        );
+          targetElement.classList.contains("toggle-box");
+
+        console.log("Rule of Toggle checkbox matched", isMatched);
+
+        return isMatched;
       },
     ],
   },
@@ -170,7 +173,11 @@ const RULES_ENGINE = [
             break;
         }
 
-        return event.type.equals(constants.EVENT_TYPES.click) && result;
+        const isMatched =
+          event.type.equals(constants.EVENT_TYPES.click) && result;
+
+        console.log("Rule of Radio Button matched", isMatched);
+        return isMatched;
       },
     ],
   },
@@ -188,7 +195,7 @@ const RULES_ENGINE = [
           targetElement.closest(".input_container") ||
           targetElement.closest(".public_fixedDataTableCell_cellContent");
 
-        return (
+        const isMatched =
           event.type.equals(constants.EVENT_TYPES.click) &&
           targetElement.tagName.equals("input") &&
           targetElement.role?.equals("combobox") &&
@@ -197,13 +204,15 @@ const RULES_ENGINE = [
           !targetElement
             .closest("div")
             ?.getAttribute("data-dyn-controlname")
-            ?.startsWith("FiscalCalendarPeriodFilter_")
-        );
+            ?.startsWith("FiscalCalendarPeriodFilter_");
+
+        console.log("First Rule of input drop down matched", isMatched);
+        return isMatched;
       },
       function (event) {
         const targetElement = event.target;
 
-        return (
+        const isMatched =
           event.type.equals(constants.EVENT_TYPES.click) &&
           (targetElement.tagName.equals("input") ||
             targetElement.tagName.equals("div")) &&
@@ -214,8 +223,10 @@ const RULES_ENGINE = [
           getElementByXpath(
             "ancestor::form[not(div//div[contains(@class,'right-splitter')])]",
             targetElement
-          )
-        );
+          );
+
+        console.log("Second Rule of input drop down matched", isMatched);
+        return isMatched;
       },
     ],
   },
