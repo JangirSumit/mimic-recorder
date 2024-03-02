@@ -1,37 +1,33 @@
 const RECORDER = [];
+const constants = {
+  ELEMENT_TYPES: {
+    None: "None",
+    ToggleButtonCheckbox: "ToggleButtonCheckbox",
+    CustomCheckbox: "CustomCheckbox",
+    CheckmarkCheckbox: "CheckmarkCheckbox",
+    TreeViewCheckbox: "TreeViewCheckbox",
+    InputDropdown: "InputDropdown",
+    DynamicDropdown: "DynamicDropdown",
+    TextboxDropdown: "TextboxDropdown",
+    FlyoutContainerDropdown: "FlyoutContainerDropdown",
+    DefaultRadioButton: "DefaultRadioButton",
+    DefaultLink: "DefaultLink",
+  },
+  ELEMENT_CATEGORIES: {
+    None: "None",
+    Checkbox: "Checkbox",
+    Dropdown: "Dropdown",
+    RadioButton: "RadioButton",
+  },
+  EVENT_TYPES: {
+    Click: "Click",
+  },
+};
 let EVENT_PROCESSOR = {};
 
-initializeConstants();
 initializeCommonMethods();
 initializeListeners();
 initializeEventProcessor();
-
-function initializeConstants() {
-  const constants = {
-    ELEMENT_TYPES: {
-      None: "None",
-      ToggleButtonCheckbox: "ToggleButtonCheckbox",
-      CustomCheckbox: "CustomCheckbox",
-      CheckmarkCheckbox: "CheckmarkCheckbox",
-      TreeViewCheckbox: "TreeViewCheckbox",
-      InputDropdown: "InputDropdown",
-      DynamicDropdown: "DynamicDropdown",
-      TextboxDropdown: "TextboxDropdown",
-      FlyoutContainerDropdown: "FlyoutContainerDropdown",
-      DefaultRadioButton: "DefaultRadioButton",
-      DefaultLink: "DefaultLink",
-    },
-    ELEMENT_CATEGORIES: {
-      None: "None",
-      Checkbox: "Checkbox",
-      Dropdown: "Dropdown",
-      RadioButton: "RadioButton",
-    },
-    EVENT_TYPES: {
-      Click: "Click",
-    },
-  };
-}
 
 function initializeCommonMethods() {
   function getElementsByXpath(path, parent) {
@@ -120,7 +116,7 @@ const RULES_ENGINE = [
     },
     rules: [
       function (event) {
-        const targetElement = event.targetElement;
+        const targetElement = event.target;
 
         return (
           event.type.equals(constants.EVENT_TYPES.Click) &&
@@ -231,6 +227,7 @@ function initializeListeners() {
 }
 
 function handleEvents(event) {
+  console.log("got event", event);
   EVENT_PROCESSOR.currentElement = event;
   EVENT_PROCESSOR.activeEvents.push[event];
   EVENT_PROCESSOR.currentElement = event.target;
@@ -239,13 +236,17 @@ function handleEvents(event) {
 }
 
 function processEvent() {
-  const rulesToCheck = EVENT_PROCESSOR.activeRules || RULES_ENGINE;
+  console.log("processing events");
+
+  const rulesToCheck = EVENT_PROCESSOR.activeRules.length
+    ? EVENT_PROCESSOR.activeRules
+    : RULES_ENGINE;
 
   const filteredRules = rulesToCheck.filter((r) => {
     let result = true;
     let ruleFuncs = r.rules;
 
-    for (let i = 0; i < rules.length; i++) {
+    for (let i = 0; i < ruleFuncs.length; i++) {
       let event = EVENT_PROCESSOR.activeEvents[i];
       let ruleFunc = ruleFuncs[i];
 
