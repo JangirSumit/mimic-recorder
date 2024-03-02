@@ -115,75 +115,108 @@ const RULES_ENGINE = [
       elementCategory: constants.ELEMENT_CATEGORIES.Checkbox,
       elementType: constants.ELEMENT_TYPES.ToggleButtonCheckbox,
     },
-    rule: function (event) {
-      const targetElement = event.targetElement;
+    rules: [
+      function (event) {
+        const targetElement = event.targetElement;
 
-      return (
-        event.eventType.equals(constants.EVENT_TYPES.Click) &&
-        targetElement.tagName.equals("span") &&
-        targetElement.role?.equals("switch") &&
-        targetElement.classList.contains("toggle-box")
-      );
-    },
+        return (
+          event.eventType.equals(constants.EVENT_TYPES.Click) &&
+          targetElement.tagName.equals("span") &&
+          targetElement.role?.equals("switch") &&
+          targetElement.classList.contains("toggle-box")
+        );
+      },
+    ],
   },
   {
     metadata: {
       elementCategory: constants.ELEMENT_CATEGORIES.RadioButton,
       elementType: constants.ELEMENT_TYPES.DefaultRadioButton,
     },
-    rule: function (event) {
-      const targetElement = event.targetElement;
+    rules: [
+      function (event) {
+        const targetElement = event.targetElement;
 
-      let result = false;
-      let parentDiv;
+        let result = false;
+        let parentDiv;
 
-      switch (targetElement.tagName.toLowerCase()) {
-        case "input":
-          result = targetElement.type?.equals("radio");
-          break;
+        switch (targetElement.tagName.toLowerCase()) {
+          case "input":
+            result = targetElement.type?.equals("radio");
+            break;
 
-        case "label":
-          parentDiv = targetElement.closest("div.layout-container");
-          if (parentDiv) {
-            let radioElements = parentDiv.querySelectorAll(
-              "input[type='radio']"
+          case "label":
+            parentDiv = targetElement.closest("div.layout-container");
+            if (parentDiv) {
+              let radioElements = parentDiv.querySelectorAll(
+                "input[type='radio']"
+              );
+              result = radioElements?.length > 0;
+            }
+            break;
+
+          case "span":
+          case "div":
+            parentDiv = targetElement.closest(
+              "div.group_content.layout-container"
             );
-            result = radioElements?.length > 0;
-          }
-          break;
+            if (parentDiv) {
+              let radioElements = parentDiv.querySelectorAll(
+                "input[type='radio']"
+              );
+              result = radioElements?.length > 0;
+            }
+            break;
+        }
 
-        case "span":
-        case "div":
-          parentDiv = targetElement.closest(
-            "div.group_content.layout-container"
-          );
-          if (parentDiv) {
-            let radioElements = parentDiv.querySelectorAll(
-              "input[type='radio']"
-            );
-            result = radioElements?.length > 0;
-          }
-          break;
-      }
-
-      return event.eventType === constants.EVENT_TYPES.Click && result;
-    },
+        return event.eventType === constants.EVENT_TYPES.Click && result;
+      },
+    ],
   },
   {
     metadata: {
       elementCategory: constants.ELEMENT_CATEGORIES.Dropdown,
       elementType: constants.ELEMENT_TYPES.InputDropdown,
     },
-    rule: function (event) {
-      const targetElement = event.targetElement;
+    rules: [
+      function (event) {
+        const targetElement = event.targetElement;
 
-      return (
-        event.eventType === constants.EVENT_TYPES.Click &&
-        targetElement.tagName.equals("span") &&
-        targetElement.role?.equals("switch") &&
-        targetElement.classList.contains("toggle-box")
-      );
-    },
+        let parentElement =
+          targetElement.closest(".lookupDock-dockContainer") ||
+          targetElement.closest(".input_container") ||
+          targetElement.closest(".public_fixedDataTableCell_cellContent");
+
+        return (
+          event.eventType === constants.EVENT_TYPES.Click &&
+          targetElement.tagName.equals("input") &&
+          targetElement.role?.equals("combobox") &&
+          parentElement?.querySelector(".lookupButton") &&
+          targetElement.getAttribute("aria-controls") !== "ui-datepicker-div" &&
+          !targetElement
+            .closest("div")
+            ?.getAttribute("data-dyn-controlname")
+            ?.startsWith("FiscalCalendarPeriodFilter_")
+        );
+      },
+      function (event) {
+        const targetElement = event.targetElement;
+
+        return (
+          event.eventType === constants.EVENT_TYPES.Click &&
+          (targetElement.tagName.equals("input") ||
+            targetElement.tagName.equals("div")) &&
+          getElementsByXpath(
+            "parent::div//div[@role ='gridcell']//input[@type='text'][@role = 'textbox']|self::input[@type='text'][@role = 'textbox']|parent::div//input[@type='text'][@role = 'textbox']",
+            targetElement
+          ) &&
+          getElementByXpath(
+            "ancestor::form[not(div//div[contains(@class,'right-splitter')])]",
+            targetElement
+          )
+        );
+      },
+    ],
   },
 ];
 
