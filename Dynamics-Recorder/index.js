@@ -20,7 +20,8 @@ const constants = {
     RadioButton: "RadioButton",
   },
   EVENT_TYPES: {
-    Click: "Click",
+    click: "click",
+    set: "set",
   },
 };
 let EVENT_PROCESSOR = {};
@@ -120,7 +121,7 @@ const RULES_ENGINE = [
         const targetElement = event.target;
 
         return (
-          event.type.equals(constants.EVENT_TYPES.Click) &&
+          event.type.equals(constants.EVENT_TYPES.click) &&
           targetElement.tagName.equals("span") &&
           targetElement.role?.equals("switch") &&
           targetElement.classList.contains("toggle-box")
@@ -169,7 +170,7 @@ const RULES_ENGINE = [
             break;
         }
 
-        return event.type.equals(constants.EVENT_TYPES.Click) && result;
+        return event.type.equals(constants.EVENT_TYPES.click) && result;
       },
     ],
   },
@@ -188,7 +189,7 @@ const RULES_ENGINE = [
           targetElement.closest(".public_fixedDataTableCell_cellContent");
 
         return (
-          event.type.equals(constants.EVENT_TYPES.Click) &&
+          event.type.equals(constants.EVENT_TYPES.click) &&
           targetElement.tagName.equals("input") &&
           targetElement.role?.equals("combobox") &&
           parentElement?.querySelector(".lookupButton") &&
@@ -203,7 +204,7 @@ const RULES_ENGINE = [
         const targetElement = event.target;
 
         return (
-          event.type.equals(constants.EVENT_TYPES.Click) &&
+          event.type.equals(constants.EVENT_TYPES.click) &&
           (targetElement.tagName.equals("input") ||
             targetElement.tagName.equals("div")) &&
           getElementsByXpath(
@@ -228,7 +229,6 @@ function initializeListeners() {
 }
 
 function handleEvents(event) {
-  console.log("got event", event);
   EVENT_PROCESSOR.currentEvent = event;
   EVENT_PROCESSOR.activeEvents.push(event);
   EVENT_PROCESSOR.currentElement = event.target;
@@ -237,8 +237,6 @@ function handleEvents(event) {
 }
 
 function processEvent() {
-  console.log("processing events");
-
   const rulesToCheck = EVENT_PROCESSOR.activeRules.length
     ? EVENT_PROCESSOR.activeRules
     : RULES_ENGINE;
@@ -267,26 +265,42 @@ function processEvent() {
   );
 
   if (filteredRules.length === 0) {
-    generateBlock();
-  } else {
+    generateBlock(
+      constants.EVENT_TYPES.click,
+      EVENT_PROCESSOR.activeEvents[0]?.target
+    );
+    initializeEventProcessor();
+  } else if (filteredRules.length == 1) {
+    generateBlock(
+      constants.EVENT_TYPES.set,
+      EVENT_PROCESSOR.activeEvents[0]?.target,
+      filteredRules[0].metadata
+    );
   }
+
+  EVENT_PROCESSOR.activeRules = filteredRules;
 }
 
-function generateBlock() {
+function generateBlock(event, target, options) {
   let block = {};
 
-  switch (EVENT_PROCESSOR.currentEvent.target) {
+  switch (event) {
     case "click":
       block = {
-        Block: EVENT_PROCESSOR.currentEvent.target,
-        Locator: EVENT_PROCESSOR.currentElement,
+        Block: "Click",
+        Locator: target,
       };
       break;
-
+    case "set":
+      block = {
+        Block: "Set",
+        Locator: target,
+        options: options,
+      };
     default:
       break;
   }
 
   RECORDER.push(block);
-  console.log(RECORDER);
+  console.log("RECORDER ->", RECORDER);
 }
