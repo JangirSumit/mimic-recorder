@@ -1,13 +1,10 @@
 const RECORDER = [];
-let EVENT_PROCESSOR = {
-  currentEvent: undefined,
-  currentElement: undefined,
-  events: [],
-};
+let EVENT_PROCESSOR = {};
 
 initializeConstants();
 initializeCommonMethods();
 initializeListeners();
+initializeEventProcessor();
 
 function initializeConstants() {
   const constants = {
@@ -109,6 +106,15 @@ function initializeExtensionMethods() {
   }
 }
 
+function initializeEventProcessor() {
+  EVENT_PROCESSOR = {
+    currentEvent: undefined,
+    currentElement: undefined,
+    activeEvents: [],
+    activeRules: [],
+  };
+}
+
 const RULES_ENGINE = [
   {
     metadata: {
@@ -120,7 +126,7 @@ const RULES_ENGINE = [
         const targetElement = event.targetElement;
 
         return (
-          event.eventType.equals(constants.EVENT_TYPES.Click) &&
+          event.type.equals(constants.EVENT_TYPES.Click) &&
           targetElement.tagName.equals("span") &&
           targetElement.role?.equals("switch") &&
           targetElement.classList.contains("toggle-box")
@@ -135,7 +141,7 @@ const RULES_ENGINE = [
     },
     rules: [
       function (event) {
-        const targetElement = event.targetElement;
+        const targetElement = event.target;
 
         let result = false;
         let parentDiv;
@@ -169,7 +175,7 @@ const RULES_ENGINE = [
             break;
         }
 
-        return event.eventType === constants.EVENT_TYPES.Click && result;
+        return event.type.equals(constants.EVENT_TYPES.Click) && result;
       },
     ],
   },
@@ -180,7 +186,7 @@ const RULES_ENGINE = [
     },
     rules: [
       function (event) {
-        const targetElement = event.targetElement;
+        const targetElement = event.target;
 
         let parentElement =
           targetElement.closest(".lookupDock-dockContainer") ||
@@ -188,7 +194,7 @@ const RULES_ENGINE = [
           targetElement.closest(".public_fixedDataTableCell_cellContent");
 
         return (
-          event.eventType === constants.EVENT_TYPES.Click &&
+          event.eventType.equals(constants.EVENT_TYPES.Click) &&
           targetElement.tagName.equals("input") &&
           targetElement.role?.equals("combobox") &&
           parentElement?.querySelector(".lookupButton") &&
@@ -200,10 +206,10 @@ const RULES_ENGINE = [
         );
       },
       function (event) {
-        const targetElement = event.targetElement;
+        const targetElement = event.target;
 
         return (
-          event.eventType === constants.EVENT_TYPES.Click &&
+          event.type.equals(constants.EVENT_TYPES.Click) &&
           (targetElement.tagName.equals("input") ||
             targetElement.tagName.equals("div")) &&
           getElementsByXpath(
@@ -221,26 +227,41 @@ const RULES_ENGINE = [
 ];
 
 function initializeListeners() {
-  window.addEventListener("click", handleClick, true);
-  window.addEventListener("pointerdown", handlePointerdown, true);
-  window.addEventListener("dblclick", handleDblClick, true);
-  window.addEventListener("input", handleInput, true);
+  window.addEventListener("click", handleEvents, true);
+  // window.addEventListener("pointerdown", handlePointerdown, true);
+  window.addEventListener("dblclick", handleEvents, true);
+  window.addEventListener("input", handleEvents, true);
 }
 
-function handleClick(event) {
-  console.log("click event");
+function handleEvents(event) {
+  EVENT_PROCESSOR.currentElement = event;
+  EVENT_PROCESSOR.activeEvents.push[event];
+  EVENT_PROCESSOR.currentElement = event.target;
 }
 
-function handlePointerdown(event) {
-  if (event.pointerType === "mouse" && event.button === 0) {
-    console.log("pointer down event");
-  }
-}
+function processEvent() {
+  const rulesToCheck = EVENT_PROCESSOR.activeRules || RULES_ENGINE;
 
-function handleDblClick(event) {
-  console.log("double click event");
-}
+  const filteredRules = rulesToCheck.filter((r) => {
+    let result = true;
+    let ruleFuncs = r.rules;
 
-function handleInput(event) {
-  console.log("input event");
+    for (let i = 0; i < rules.length; i++) {
+      let event = EVENT_PROCESSOR.activeEvents[i];
+      let ruleFunc = ruleFuncs[i];
+
+      if (ruleFunc(event) == false) {
+        result = false;
+        break;
+      }
+
+      return result;
+    }
+
+    console.log(
+      "filtered Rules, event processor",
+      filteredRules,
+      EVENT_PROCESSOR
+    );
+  });
 }
